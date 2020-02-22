@@ -1,0 +1,69 @@
+{
+  "name": "tval",
+  "version": "0.0.0",
+  "description": "Smart validation with Typescript",
+  "keywords": [
+    "type",
+    "types",
+    "check",
+    "checking",
+    "guard",
+    "guards",
+    "assert",
+    "assertion",
+    "predicate",
+    "predicates",
+    "is",
+    "validate",
+    "validation",
+    "validator",
+    "utility",
+    "util",
+    "typeof",
+    "instanceof",
+    "object"
+  ],
+  "author": "Junyoung Choi <rokt33r.choi@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rokt33r/tval.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rokt33r/tval/issues"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/index.d.ts",
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "rimraf dist && tsc -P tsconfig.build.json",
+    "lint": "prettier --check src/**/*.ts specs/**/*.ts",
+    "format": "prettier --write src/**/*.ts specs/**/*.ts",
+    "test": "npm run lint && npm run test-type && npm run test-api",
+    "test-api": "jest",
+    "test-type": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.1.2",
+    "jest": "^25.1.0",
+    "prettier": "^1.19.1",
+    "ts-jest": "^25.2.0",
+    "typescript": "^3.7.5"
+  },
+  "dependencies": {
+    "@sindresorhus/is": "^2.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {
+      "^.+\\.[t|j]sx?$": "ts-jest"
+    },
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/"
+    ]
+  }
+}
