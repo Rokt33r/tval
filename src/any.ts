@@ -1,10 +1,10 @@
 import { Predicate, report, Validator } from './tval'
 
-export function tAnyx<T>(...predicators: Predicate<any>[]): Predicate<T> {
+export function tAnyx<T>(...predicates: Predicate<any>[]): Predicate<T> {
   const validator: Validator<any> = (value, context) => {
     const messages = []
-    for (const predicator of predicators) {
-      const message = report(value, predicator)
+    for (const predicate of predicates) {
+      const message = report(predicate, value)
       if (message == null) return null
       messages.push(message)
     }
