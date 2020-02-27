@@ -53,6 +53,6 @@ function renderTargetList(targets: number[]) {
     : JSON.stringify(targets)
 }
 
-export function tStr() {
+export function tNum() {
   return new NumberPredicate()
 }
