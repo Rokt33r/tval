@@ -21,7 +21,7 @@ export class NumberPredicate<N extends number = number>
     return new NumberPredicate([...this.validators, validator])
   }
 
-  equals<N2 extends number>(target: N2): NumberPredicate<N2> {
+  equal<N2 extends number>(target: N2): NumberPredicate<N2> {
     return this.addValidator((value: number) => {
       if (value === target) {
         return null
@@ -30,19 +30,59 @@ export class NumberPredicate<N extends number = number>
     })
   }
 
-  oneOf<S2 extends number>(...targets: S2[]): NumberPredicate<N & S2> {
+  oneOf<N2 extends number>(...targets: N2[]): NumberPredicate<N & N2> {
     return this.addValidator((value: number) => {
       for (const target of targets) {
         if (target === value) return null
       }
-      return `Expected value to be one of \`${renderTargetList(
+      return `Expected value to be one of \`${renderExpectedList(
         targets
       )}\`, got \`${value}\``
     })
   }
+  notEqual<N2 extends number>(target: N2): NumberPredicate<Exclude<N, N2>> {
+    return this.addValidator((value: number) => {
+      if (value !== target) {
+        return null
+      }
+      return `Expected value to be equal to \`${target}\`, got \`${value}\``
+    })
+  }
+
+  noneOf<N2 extends number>(...targets: N2[]): NumberPredicate<Exclude<N, N2>> {
+    return this.addValidator((value: number) => {
+      for (const target of targets) {
+        if (target === value) {
+          return `Expected value to be one of \`${renderExpectedList(
+            targets
+          )}\`, got \`${value}\``
+        }
+      }
+      return null
+    })
+  }
+
+  // TODO:
+  // inRange
+  // greaterThan
+  // greaterThanOrEqual
+  // lessThan
+  // lessThanOrEqual
+  // integer
+  // finite
+  // infinite
+  // positive
+  // negative
+  // integerOrInfinite
+  // uint
+  // uint16
+  // uint32
+  // int8
+  // int16
+  // int32
 }
 
-function renderTargetList(targets: number[]) {
+function renderExpectedList(targets: number[]) {
   const limit = 10
   const overflow = targets.length - limit
   return targets.length > limit
