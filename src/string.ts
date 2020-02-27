@@ -30,7 +30,7 @@ export class StringPredicate<S extends string = string>
     })
   }
 
-  equals<S2 extends string>(target: S2): StringPredicate<S2> {
+  equal<S2 extends string>(target: S2): StringPredicate<S2> {
     return this.addValidator((value: string) => {
       if (value === target) {
         return null
@@ -44,14 +44,53 @@ export class StringPredicate<S extends string = string>
       for (const target of targets) {
         if (target === value) return null
       }
-      return `Expected value to be one of \`${renderTargetList(
+      return `Expected value to be one of \`${renderExpectedList(
         targets
       )}\`, got \`${value}\``
     })
   }
+
+  nonEqual<S2 extends string>(target: S2): StringPredicate<Exclude<S, S2>> {
+    return this.addValidator((value: string) => {
+      if (value !== target) {
+        return null
+      }
+      return `Expected value to not be equal to \`${target}\`, got \`${value}\``
+    })
+  }
+
+  noneOf<S2 extends string>(...targets: S2[]): StringPredicate<Exclude<S, S2>> {
+    return this.addValidator((value: string) => {
+      for (const target of targets) {
+        if (target === value) {
+          return `Expected value to be none of \`${renderExpectedList(
+            targets
+          )}\`, got \`${value}\``
+        }
+      }
+      return null
+    })
+  }
+
+  // TODO:
+  // length
+  // min
+  // max
+  // empty
+  // nonEmpty
+  // match
+  // startsWith
+  // endsWith
+  // alphanumeric
+  // alphabetical
+  // numeric
+  // date
+  // lowercase
+  // uppercase
+  // url
 }
 
-function renderTargetList(targets: string[]) {
+function renderExpectedList(targets: string[]) {
   const limit = 10
   const overflow = targets.length - limit
   return targets.length > limit

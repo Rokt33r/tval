@@ -15,15 +15,15 @@ describe('tStr', () => {
     )
   })
 
-  describe('equals', () => {
+  describe('equal', () => {
     it('validates value is equal to expected string', () => {
-      const result = report(tStr().equals('Hello, World!'), 'Hello, World!')
+      const result = report(tStr().equal('Hello, World!'), 'Hello, World!')
 
       expect(result).toBe(null)
     })
 
     it('validates value is equal to expected string(invalid)', () => {
-      const result = report(tStr().equals('Hello, World!'), 'Hola, Mundo!')
+      const result = report(tStr().equal('Hello, World!'), 'Hola, Mundo!')
 
       expect(result).toEqual(
         'Expected value to be equal to `Hello, World!`, got `Hola, Mundo!`'
