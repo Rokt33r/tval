@@ -79,8 +79,10 @@ export class StringPredicate<S extends string = string>
   // empty
   // nonEmpty
   // match
-  // startsWith
-  // endsWith
+  // startWith
+  // endWith
+  // include
+  // exclude
   // alphanumeric
   // alphabetical
   // numeric

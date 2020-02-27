@@ -32,6 +32,16 @@ class ArrayPredicate<A extends Array<any>> implements Predicate<A> {
       return null
     })
   }
+
+  // empty
+  // nonEmpty
+  // length
+  // minLength
+  // maxLength
+  // include
+  // includeAny
+  // exclude
+  // deepEqual
 }
 
 export function tArr() {

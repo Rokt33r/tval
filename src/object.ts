@@ -97,6 +97,13 @@ class ObjectPredicate<O extends object = {}> implements Predicate<O> {
       return null
     })
   }
+
+  // plain
+  // empty
+  // nonEmpty
+  // valuesOfType
+  // deepEqual
+  // instanceOf
 }
 
 export function tObj() {
