@@ -16,14 +16,25 @@ describe('tAny', () => {
   it('reports a surmarized error message if value does not match any of conditions', () => {
     const result = validate(tAny(tStr(), tNum()), {})
 
-    expect(result).toMatchObject({
+    expect(result).toEqual({
       code: 'any',
+      messagePredicate: [
+        'match any of following conditions',
+        '- The value should be `string` type, not `Object` type',
+        '- The value should be `number` type, not `Object` type'
+      ].join('\n'),
       subResults: [
-        {
-          code: 'type'
-        },
-        { code: 'type' }
-      ]
+        expect.objectContaining({
+          code: 'type',
+          validatorArgs: ['string']
+        }),
+        expect.objectContaining({
+          code: 'type',
+          validatorArgs: ['number']
+        })
+      ],
+      value: expect.any(Object),
+      validatorArgs: expect.any(Array)
     })
   })
 })
