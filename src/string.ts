@@ -1,5 +1,5 @@
-import { Validator, Predicate, ValidatorList } from './tval'
-import { createTypeValidator } from './utils'
+import { Validator, Predicate, ValidatorList, InvalidResult } from './tval'
+import { createTypeValidator, stringifyList } from './utils'
 
 const stringValidator = createTypeValidator<string>('string')
 
@@ -22,50 +22,77 @@ export class StringPredicate<S extends string = string>
   }
 
   length(length: number) {
-    return this.addValidator((value: string) => {
+    return this.addValidator((value: string): InvalidResult | null => {
       if (value.length === length) {
         return null
       }
-      return `Expected value to have length \`${length}\`, got \`${value.length}\` `
+      return {
+        code: 'string.length',
+        messagePredicate: `have length \`${length}\`, got \`${value.length}\``,
+        value,
+        validatorArgs: [length]
+      }
     })
   }
 
   equal<S2 extends string>(target: S2): StringPredicate<S2> {
-    return this.addValidator((value: string) => {
+    return this.addValidator((value: string): InvalidResult | null => {
       if (value === target) {
         return null
       }
-      return `Expected value to be equal to \`${target}\`, got \`${value}\``
+      return {
+        code: 'string.equal',
+        messagePredicate: `be equal to \`${target}\`, got \`${value}\``,
+        value,
+        validatorArgs: [target]
+      }
     })
   }
 
   oneOf<S2 extends string>(...targets: S2[]): StringPredicate<S & S2> {
-    return this.addValidator((value: string) => {
+    return this.addValidator((value: string): InvalidResult | null => {
       for (const target of targets) {
         if (target === value) return null
       }
-      return `Expected value to be one of \`${renderExpectedList(
-        targets
-      )}\`, got \`${value}\``
+
+      return {
+        code: 'string.oneOf',
+        messagePredicate: `be one of \`${stringifyList(
+          targets
+        )}\`, got \`${value}\``,
+        value,
+        validatorArgs: targets
+      }
     })
   }
 
-  nonEqual<S2 extends string>(target: S2): StringPredicate<Exclude<S, S2>> {
-    return this.addValidator((value: string) => {
+  notEqual<S2 extends string>(target: S2): StringPredicate<Exclude<S, S2>> {
+    return this.addValidator((value: string): InvalidResult | null => {
       if (value !== target) {
         return null
       }
-      return `Expected value to not be equal to \`${target}\`, got \`${value}\``
+
+      return {
+        code: 'string.notEqual',
+        messagePredicate: `be equal to \`${target}\`, got \`${value}\``,
+        value,
+        validatorArgs: [target]
+      }
     })
   }
 
   noneOf<S2 extends string>(...targets: S2[]): StringPredicate<Exclude<S, S2>> {
-    return this.addValidator((value: string) => {
+    return this.addValidator((value: string): InvalidResult | null => {
       for (const target of targets) {
         if (target === value) {
-          return `Expected value to be none of \`${renderExpectedList(
-            targets
-          )}\`, got \`${value}\``
+          return {
+            code: 'string.noneOf',
+            messagePredicate: `be none of \`${stringifyList(
+              targets
+            )}\`, got \`${value}\``,
+            value,
+            validatorArgs: targets
+          }
         }
       }
       return null
@@ -90,17 +117,6 @@ export class StringPredicate<S extends string = string>
   // lowercase
   // uppercase
   // url
-}
-
-function renderExpectedList(targets: string[]) {
-  const limit = 10
-  const overflow = targets.length - limit
-  return targets.length > limit
-    ? JSON.stringify(targets.slice(0, limit)).replace(
-        /]$/,
-        `,…+${overflow} more]`
-      )
-    : JSON.stringify(targets)
 }
 
 export function tStr() {
