@@ -15,3 +15,20 @@ export function createTypeValidator<T>(expectedType: string): Validator<T> {
     }
   }
 }
+
+export function stringifyList(
+  list: any[],
+  stringifier: (value: any) => string = JSON.stringify,
+  displayLimit: number = 10
+) {
+  const displayList = displayLimit < 0 ? list : list.slice(0, displayLimit)
+  const overflow = displayLimit < 0 ? 0 : list.length - displayLimit
+
+  const stringifiedContent = displayList
+    .map(item => stringifier(item))
+    .join(', ')
+
+  return overflow > 0
+    ? `[${stringifiedContent},…+${overflow} more]`
+    : `[${stringifiedContent}]`
+}
