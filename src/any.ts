@@ -1,17 +1,25 @@
-import { Predicate, report, Validator } from './tval'
+import { Predicate, validate, Validator, getInvalidErrorMessage } from './tval'
 
 export function tAnyx<T>(...predicates: Predicate<any>[]): Predicate<T> {
   const validator: Validator<any> = (value, context) => {
-    const messages = []
+    const results = []
     for (const predicate of predicates) {
-      const message = report(predicate, value)
-      if (message == null) return null
-      messages.push(message)
+      const result = validate(predicate, value)
+      if (result == null) return null
+      results.push(result)
     }
-    return [
-      `Expected value to match any of following conditions`,
-      ...messages.map(message => `- ${message.replace(/\n/g, '\n  ')}`)
-    ].join('\n')
+    return {
+      code: 'any',
+      value,
+      messagePredicate: [
+        `match any of following conditions`,
+        ...results.map(
+          result => `- ${getInvalidErrorMessage(result).replace(/\n/g, '\n  ')}`
+        )
+      ].join('\n'),
+      subResults: results,
+      validatorArgs: predicates
+    }
   }
 
   return {
