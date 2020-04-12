@@ -24,13 +24,11 @@ describe('assert', () => {
   it('throws if value is invalid', () => {
     expect(() => {
       assert(tStr(), 123)
-    }).toThrow(
-      `Expected value to be of type \`string\` but received type \`number\``
-    )
+    }).toThrow(`The value should be \`string\` type, not \`number\` type`)
   })
 })
 
-describe('report', () => {
+describe('validate', () => {
   it('returns null if value is valid', () => {
     const result = validate(tStr(), 'Hello, World!')
 
@@ -41,7 +39,10 @@ describe('report', () => {
     const result = validate(tStr(), 123)
 
     expect(result).toEqual({
-      message: `Expected value to be of type \`string\` but received type \`number\``
+      code: 'type',
+      messagePredicate: `be \`string\` type, not \`number\` type`,
+      value: 123,
+      validatorArgs: ['string']
     })
   })
 })

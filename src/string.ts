@@ -28,7 +28,7 @@ export class StringPredicate<S extends string = string>
       }
       return {
         code: 'string.length',
-        messagePredicate: `have length \`${length}\`, got \`${value.length}\``,
+        messagePredicate: `have length \`${length}\`, not \`${value.length}\``,
         value,
         validatorArgs: [length]
       }
@@ -42,7 +42,7 @@ export class StringPredicate<S extends string = string>
       }
       return {
         code: 'string.equal',
-        messagePredicate: `be equal to \`${target}\`, got \`${value}\``,
+        messagePredicate: `be equal to \`${target}\`, not equal to \`${value}\``,
         value,
         validatorArgs: [target]
       }
@@ -59,7 +59,7 @@ export class StringPredicate<S extends string = string>
         code: 'string.oneOf',
         messagePredicate: `be one of \`${stringifyList(
           targets
-        )}\`, got \`${value}\``,
+        )}\`, not \`${value}\``,
         value,
         validatorArgs: targets
       }
@@ -74,7 +74,7 @@ export class StringPredicate<S extends string = string>
 
       return {
         code: 'string.notEqual',
-        messagePredicate: `be equal to \`${target}\`, got \`${value}\``,
+        messagePredicate: `be equal to \`${target}\`, not \`${value}\``,
         value,
         validatorArgs: [target]
       }
@@ -89,7 +89,7 @@ export class StringPredicate<S extends string = string>
             code: 'string.noneOf',
             messagePredicate: `be none of \`${stringifyList(
               targets
-            )}\`, got \`${value}\``,
+            )}\`, not \`${value}\``,
             value,
             validatorArgs: targets
           }
