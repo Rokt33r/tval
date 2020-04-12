@@ -1,4 +1,4 @@
-import { Validator, Predicate, ValidatorList } from './tval'
+import { Validator, Predicate, ValidatorList, InvalidResult } from './tval'
 import { createTypeValidator } from './utils'
 
 const numberValidator = createTypeValidator<number>('number')
@@ -22,40 +22,60 @@ export class NumberPredicate<N extends number = number>
   }
 
   equal<N2 extends number>(target: N2): NumberPredicate<N2> {
-    return this.addValidator((value: number) => {
+    return this.addValidator((value: number): InvalidResult | null => {
       if (value === target) {
         return null
       }
-      return `Expected value to be equal to \`${target}\`, got \`${value}\``
+      return {
+        code: 'number.equal',
+        messagePredicate: `be equal to \`${target}\`, got \`${value}\``,
+        value,
+        validatorArgs: [target]
+      }
     })
   }
 
   oneOf<N2 extends number>(...targets: N2[]): NumberPredicate<N & N2> {
-    return this.addValidator((value: number) => {
+    return this.addValidator((value: number): InvalidResult | null => {
       for (const target of targets) {
         if (target === value) return null
       }
-      return `Expected value to be one of \`${renderExpectedList(
-        targets
-      )}\`, got \`${value}\``
+      return {
+        code: 'number.oneOf',
+        messagePredicate: `be one of \`${renderExpectedList(
+          targets
+        )}\`, got \`${value}\``,
+        value,
+        validatorArgs: targets
+      }
     })
   }
   notEqual<N2 extends number>(target: N2): NumberPredicate<Exclude<N, N2>> {
-    return this.addValidator((value: number) => {
+    return this.addValidator((value: number): InvalidResult | null => {
       if (value !== target) {
         return null
       }
-      return `Expected value to be equal to \`${target}\`, got \`${value}\``
+      return {
+        code: 'number.notEqual',
+        messagePredicate: `not be equal to \`${target}\`, got \`${value}\``,
+        value,
+        validatorArgs: [target]
+      }
     })
   }
 
   noneOf<N2 extends number>(...targets: N2[]): NumberPredicate<Exclude<N, N2>> {
-    return this.addValidator((value: number) => {
+    return this.addValidator((value: number): InvalidResult | null => {
       for (const target of targets) {
         if (target === value) {
-          return `Expected value to be one of \`${renderExpectedList(
-            targets
-          )}\`, got \`${value}\``
+          return {
+            code: 'number.noneOf',
+            messagePredicate: `not be one of \`${renderExpectedList(
+              targets
+            )}\`, got \`${value}\``,
+            value,
+            validatorArgs: targets
+          }
         }
       }
       return null
