@@ -1,4 +1,4 @@
-import { tStr, isValid, assert, report } from '../src'
+import { tStr, isValid, assert, validate } from '../src'
 
 describe('isValid', () => {
   it('returns true if value is valid', () => {
@@ -32,16 +32,16 @@ describe('assert', () => {
 
 describe('report', () => {
   it('returns null if value is valid', () => {
-    const result = report(tStr(), 'Hello, World!')
+    const result = validate(tStr(), 'Hello, World!')
 
     expect(result).toBe(null)
   })
 
   it('returns message value is invalid', () => {
-    const result = report(tStr(), 123)
+    const result = validate(tStr(), 123)
 
-    expect(result).toBe(
-      `Expected value to be of type \`string\` but received type \`number\``
-    )
+    expect(result).toEqual({
+      message: `Expected value to be of type \`string\` but received type \`number\``
+    })
   })
 })
