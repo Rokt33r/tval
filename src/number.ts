@@ -1,5 +1,5 @@
 import { Validator, Predicate, ValidatorList, InvalidResult } from './tval'
-import { createTypeValidator } from './utils'
+import { createTypeValidator, stringifyList } from './utils'
 
 const numberValidator = createTypeValidator<number>('number')
 
@@ -42,7 +42,7 @@ export class NumberPredicate<N extends number = number>
       }
       return {
         code: 'number.oneOf',
-        messagePredicate: `be one of \`${renderExpectedList(
+        messagePredicate: `be one of \`${stringifyList(
           targets
         )}\`, got \`${value}\``,
         value,
@@ -50,6 +50,7 @@ export class NumberPredicate<N extends number = number>
       }
     })
   }
+
   notEqual<N2 extends number>(target: N2): NumberPredicate<Exclude<N, N2>> {
     return this.addValidator((value: number): InvalidResult | null => {
       if (value !== target) {
@@ -70,7 +71,7 @@ export class NumberPredicate<N extends number = number>
         if (target === value) {
           return {
             code: 'number.noneOf',
-            messagePredicate: `not be one of \`${renderExpectedList(
+            messagePredicate: `not be one of \`${stringifyList(
               targets
             )}\`, got \`${value}\``,
             value,
@@ -100,17 +101,6 @@ export class NumberPredicate<N extends number = number>
   // int8
   // int16
   // int32
-}
-
-function renderExpectedList(targets: number[]) {
-  const limit = 10
-  const overflow = targets.length - limit
-  return targets.length > limit
-    ? JSON.stringify(targets.slice(0, limit)).replace(
-        /]$/,
-        `,…+${overflow} more]`
-      )
-    : JSON.stringify(targets)
 }
 
 export function tNum() {
