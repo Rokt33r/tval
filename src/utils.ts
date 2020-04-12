@@ -1,5 +1,5 @@
 import is from '@sindresorhus/is'
-import { Validator } from './tval'
+import { Validator, InvalidResult } from './tval'
 
 export function createTypeValidator<T>(expectedType: string): Validator<T> {
   return value => {
@@ -10,7 +10,7 @@ export function createTypeValidator<T>(expectedType: string): Validator<T> {
     return {
       code: 'type',
       value,
-      messagePredicate: `be of type \`${expectedType}\` but received type \`${valueType}\``,
+      messagePredicate: `be \`${expectedType}\` type, not \`${valueType}\` type`,
       validatorArgs: [expectedType]
     }
   }
@@ -31,4 +31,18 @@ export function stringifyList(
   return overflow > 0
     ? `[${stringifiedContent},…+${overflow} more]`
     : `[${stringifiedContent}]`
+}
+
+export function appendValuePath(
+  result: InvalidResult,
+  path: string,
+  ...morePaths: string[]
+): InvalidResult {
+  return {
+    ...result,
+    valuePaths:
+      result.valuePaths != null
+        ? [...result.valuePaths, path, ...morePaths]
+        : [path, ...morePaths]
+  }
 }
