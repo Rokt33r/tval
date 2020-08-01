@@ -18,6 +18,7 @@ describe('tAny', () => {
 
     expect(result).toEqual({
       code: 'any',
+      valueType: 'Object',
       messagePredicate: [
         'match any of following conditions',
         '- The value should be `string` type, not `Object` type',

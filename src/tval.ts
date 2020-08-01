@@ -1,11 +1,14 @@
+import { getSubject } from './utils'
+import { TypeName } from '@sindresorhus/is/dist'
+
 export interface InvalidResult {
-  valueType?: string
+  valueType: TypeName
   valuePaths?: string[]
   code: string
   value: any
-  messagePredicate: string
   subResults?: InvalidResult[]
   validatorArgs?: any[]
+  messagePredicate: string
 }
 
 export class ValidationError extends Error {
@@ -34,17 +37,9 @@ export function isValidationError(error: Error): error is ValidationError {
   return error instanceof ValidationError
 }
 
-export function getInvalidErrorMessage({
-  valueType,
-  valuePaths,
-  messagePredicate
-}: InvalidResult): string {
-  const prefix = valueType != null ? `${valueType} ` : ''
-  const subject =
-    valuePaths != null && valuePaths.length > 0
-      ? `The ${prefix}property, ${valuePaths.join('.')}`
-      : `The ${prefix}value`
-  return `${subject} should ${messagePredicate}`
+export function getInvalidErrorMessage(result: InvalidResult): string {
+  const subject = getSubject(result)
+  return `${subject} should ${result.messagePredicate}`
 }
 
 export interface Validator<T, C = {}> {

@@ -21,7 +21,7 @@ if (
   isValid(
     tStr()
       .oneOf('a', 'b')
-      .nonEqual('a'),
+      .notEqual('a'),
     unknownValue
   )
 ) {
@@ -33,7 +33,7 @@ if (
   isValid(
     tStr()
       .oneOf('a', 'b', 'c')
-      .noneOf('a'),
+      .noneOf(['a']),
     unknownValue
   )
 ) {

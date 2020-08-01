@@ -12,9 +12,10 @@ describe('tStr', () => {
 
     expect(result).toEqual({
       code: 'type',
-      messagePredicate: 'be `string` type, not `number` type',
+      valueType: 'number',
       value: 123,
-      validatorArgs: ['string']
+      validatorArgs: ['string'],
+      messagePredicate: 'be `string` type, not `number` type'
     })
   })
 
@@ -30,10 +31,11 @@ describe('tStr', () => {
 
       expect(result).toEqual({
         code: 'string.equal',
-        messagePredicate:
-          'be equal to `Hello, World!`, not equal to `Hola, Mundo!`',
+        valueType: 'string',
         value: 'Hola, Mundo!',
-        validatorArgs: ['Hello, World!']
+        validatorArgs: ['Hello, World!'],
+        messagePredicate:
+          'be equal to `Hello, World!`, not equal to `Hola, Mundo!`'
       })
     })
   })

@@ -1,20 +1,35 @@
-import is from '@sindresorhus/is'
 import {
   Validator,
   Predicate,
   ValidatorList,
   ShapeSchema,
   Unshape,
-  report
+  validate,
+  InvalidResult
 } from './tval'
-import { appendKeyToValidationResult, createTypeValidator } from './utils'
+import { stringifyList } from './utils'
+import is, { Class } from '@sindresorhus/is'
+import isEqual from 'lodash.isequal'
 
-const objectValidator = createTypeValidator<any>('Object')
+const objectValidator: Validator<any> = (value: any) => {
+  if (is.object(value)) {
+    return null
+  }
+  const valueType = is(value)
+
+  return {
+    code: 'type',
+    value,
+    valueType,
+    validatorArgs: [],
+    messagePredicate: `be \`object\` type(type: \`${valueType}\`)`
+  }
+}
 
 class ObjectPredicate<O extends object = {}> implements Predicate<O> {
   validators: ValidatorList<O>
 
-  constructor(validators?: Validator<any>[]) {
+  constructor(validators: Validator<any>[] = []) {
     if (validators == null) {
       this.validators = [objectValidator]
     } else {
@@ -28,6 +43,14 @@ class ObjectPredicate<O extends object = {}> implements Predicate<O> {
     return new ObjectPredicate([...this.validators, validator])
   }
 
+  buildResult(result: Omit<InvalidResult, 'valueType'>) {
+    const valueType = is(result.value)
+    return {
+      ...result,
+      valueType
+    }
+  }
+
   partialShape<SS extends ShapeSchema>(
     shapeSchema: SS
   ): ObjectPredicate<Unshape<SS> & O> {
@@ -38,11 +61,11 @@ class ObjectPredicate<O extends object = {}> implements Predicate<O> {
         const propPredicate = shapeSchema[key]
         const propValue = value[key]
 
-        const predicateResult = report(propPredicate, propValue)
-        if (predicateResult == null) {
+        const validateResult = validate(propPredicate, propValue)
+        if (validateResult == null) {
           continue
         }
-        return predicateResult
+        return validateResult
       }
 
       return null
@@ -70,7 +93,7 @@ class ObjectPredicate<O extends object = {}> implements Predicate<O> {
   exactShape<SS extends ShapeSchema>(
     shapeSchema: SS
   ): ObjectPredicate<Unshape<SS>> {
-    return this.addValidator(value => {
+    return this.addValidator((value: any): InvalidResult | null => {
       const keys = Object.keys(shapeSchema)
       const uncheckedKeySet = new Set(Object.keys(value))
 
@@ -78,32 +101,138 @@ class ObjectPredicate<O extends object = {}> implements Predicate<O> {
         const propPredicate = shapeSchema[key]
         const propValue = value[key]
 
-        const validationResult = report(propPredicate, propValue)
+        const validationResult = validate(propPredicate, propValue)
         if (validationResult == null) {
           uncheckedKeySet.delete(key)
           continue
         }
 
-        return appendKeyToValidationResult(validationResult, key)
+        return {
+          ...validationResult,
+          valuePaths:
+            validationResult.valuePaths == null
+              ? [key]
+              : [...validationResult.valuePaths, key]
+        }
       }
 
       if (uncheckedKeySet.size > 0) {
-        const missingKey = [...uncheckedKeySet][0]
-        return `Expected property, \`${missingKey}\`, not to exist, got \`${is(
-          value[missingKey]
-        )}\``
+        return this.buildResult({
+          code: 'object.exactShape',
+          value,
+          validatorArgs: [shapeSchema],
+          messagePredicate: `not have extra keys, \`${stringifyList([
+            ...uncheckedKeySet
+          ])}\``
+        })
       }
 
       return null
     })
   }
+  
+  empty() {
+    return this.addValidator((value: any): InvalidResult | null => {
+      const keys = Object.keys(value)
+      if (keys.length === 0) {
+        return null
+      }
 
-  // plain
-  // empty
-  // nonEmpty
-  // valuesOfType
-  // deepEqual
-  // instanceOf
+      return this.buildResult({
+        code: 'object.empty',
+        value,
+        messagePredicate: `be empty(keys: \`${JSON.stringify(keys)}\`)`
+      })
+    })
+  }
+
+  nonEmpty() {
+    return this.addValidator((value: any): InvalidResult | null => {
+      const keys = Object.keys(value)
+      if (keys.length === 0) {
+        return null
+      }
+
+      return this.buildResult({
+        code: 'object.nonEmpty',
+        value,
+        messagePredicate: `not be empty`
+      })
+    })
+  }
+
+  valuesOfType<O>(predicate: Predicate<O>): Predicate<{ [key: string]: O }> {
+    return this.addValidator((value: any): InvalidResult | null => {
+      const entries = Object.entries(value)
+      for (const [key, value] of entries) {
+        const result = validate(predicate, value)
+        if (result != null) {
+          return {
+            ...result,
+            valuePaths:
+              result.valuePaths == null ? [key] : [...result.valuePaths, key]
+          }
+        }
+      }
+      return null
+    })
+  }
+
+  deepEqual<O>(target: O): Predicate<O> {
+    return this.addValidator((value: any): InvalidResult | null => {
+      if (isEqual(target, value)) {
+        return null
+      }
+
+      return this.buildResult({
+        code: 'object.deepEqual',
+        value,
+        validatorArgs: [target],
+        messagePredicate: `be deeply equal to \`${JSON.stringify(
+          target
+        )}\`(value: \`${JSON.stringify(value)}\`)`
+      })
+    })
+  }
+
+
+  plain() {
+    return this.addValidator((value: any): InvalidResult | null => {
+      if (is.plainObject(value)) {
+        return null
+      }
+
+      return this.buildResult({
+        code: 'object.plain',
+        value,
+        messagePredicate: `be a plain object`
+      })
+    })
+  }
+
+  instanceOf<O>(target: Class<O>): Predicate<O> {
+    return this.addValidator((value: any): InvalidResult | null => {
+      if (value instanceof target) {
+        return null
+      }
+      return this.buildResult({
+        code: 'object.instanceOf',
+        value,
+        validatorArgs: [target],
+        messagePredicate: `be instance of ...(value: ${value})`
+      })
+    })
+  }
+  
+  hasKeys(...keys: readonly string[]): Predicate<O> {
+    return this.addValidator((value: any): InvalidResult | null => {
+      if (value[])
+    })
+  }
+
+  hasAnyKeys(...keys: readonly string[]): Predicate<O> {
+    return this.addValidator
+  }
 }
 
 export function tObj() {

@@ -40,6 +40,7 @@ describe('validate', () => {
 
     expect(result).toEqual({
       code: 'type',
+      valueType: 'number',
       messagePredicate: `be \`string\` type, not \`number\` type`,
       value: 123,
       validatorArgs: ['string']

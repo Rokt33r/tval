@@ -10,8 +10,9 @@ export function createTypeValidator<T>(expectedType: string): Validator<T> {
     return {
       code: 'type',
       value,
-      messagePredicate: `be \`${expectedType}\` type, not \`${valueType}\` type`,
-      validatorArgs: [expectedType]
+      valueType,
+      validatorArgs: [expectedType],
+      messagePredicate: `be \`${expectedType}\` type, not \`${valueType}\` type`
     }
   }
 }
@@ -44,5 +45,24 @@ export function appendValuePath(
       result.valuePaths != null
         ? [...result.valuePaths, path, ...morePaths]
         : [path, ...morePaths]
+  }
+}
+
+export function getSubject(result: InvalidResult): string {
+  const prefix = getSubjectPrefix(result)
+  const { valuePaths } = result
+
+  return valuePaths != null && valuePaths.length > 0
+    ? `The ${prefix}property, ${valuePaths.join('.')}`
+    : `The ${prefix}value`
+}
+
+function getSubjectPrefix({ code, valueType }: InvalidResult) {
+  switch (code) {
+    case 'type':
+    case 'any':
+      return ''
+    default:
+      return `${valueType}`
   }
 }

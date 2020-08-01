@@ -1,4 +1,5 @@
 import { Predicate, validate, Validator, getInvalidErrorMessage } from './tval'
+import is from '@sindresorhus/is/dist'
 
 export function tAnyx<T>(...predicates: Predicate<any>[]): Predicate<T> {
   const validator: Validator<any> = (value, context) => {
@@ -8,17 +9,19 @@ export function tAnyx<T>(...predicates: Predicate<any>[]): Predicate<T> {
       if (result == null) return null
       results.push(result)
     }
+    const valueType = is(value)
     return {
       code: 'any',
       value,
+      valueType,
+      subResults: results,
+      validatorArgs: predicates,
       messagePredicate: [
         `match any of following conditions`,
         ...results.map(
           result => `- ${getInvalidErrorMessage(result).replace(/\n/g, '\n  ')}`
         )
-      ].join('\n'),
-      subResults: results,
-      validatorArgs: predicates
+      ].join('\n')
     }
   }
 

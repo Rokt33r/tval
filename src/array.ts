@@ -1,5 +1,5 @@
-import { Validator, Predicate, ValidatorList, report } from './tval'
-import { appendKeyToValidationResult, createTypeValidator } from './utils'
+import { Validator, Predicate, ValidatorList, validate } from './tval'
+import { appendValuePath, createTypeValidator } from './utils'
 
 const arrayValidator = createTypeValidator<Array<any>>('Array')
 
@@ -23,11 +23,11 @@ class ArrayPredicate<A extends Array<any>> implements Predicate<A> {
   ofType<I extends A[number]>(predicate: Predicate<I>): ArrayPredicate<I[]> {
     return this.addValidator((value: Array<unknown>) => {
       for (let index = 0; index < value.length; index++) {
-        const validationResult = report(predicate, value)
+        const validationResult = validate(predicate, value)
         if (validationResult == null) {
           continue
         }
-        return appendKeyToValidationResult(validationResult, index.toString())
+        return appendValuePath(validationResult, index.toString())
       }
       return null
     })
