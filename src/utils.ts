@@ -1,5 +1,5 @@
 import is from '@sindresorhus/is'
-import { Validator, InvalidResult } from './tval'
+import { Validator } from './tval'
 
 export function createTypeValidator<T>(expectedType: string): Validator<T> {
   return value => {
@@ -11,8 +11,10 @@ export function createTypeValidator<T>(expectedType: string): Validator<T> {
       code: 'type',
       value,
       valueType,
-      validatorArgs: [expectedType],
-      messagePredicate: `be \`${expectedType}\` type, not \`${valueType}\` type`
+      data: {
+        expectedType
+      },
+      message: `The value should be \`${expectedType}\` type, not \`${valueType}\` type`
     }
   }
 }
@@ -32,37 +34,4 @@ export function stringifyList(
   return overflow > 0
     ? `[${stringifiedContent},…+${overflow} more]`
     : `[${stringifiedContent}]`
-}
-
-export function appendValuePath(
-  result: InvalidResult,
-  path: string,
-  ...morePaths: string[]
-): InvalidResult {
-  return {
-    ...result,
-    valuePaths:
-      result.valuePaths != null
-        ? [...result.valuePaths, path, ...morePaths]
-        : [path, ...morePaths]
-  }
-}
-
-export function getSubject(result: InvalidResult): string {
-  const prefix = getSubjectPrefix(result)
-  const { valuePaths } = result
-
-  return valuePaths != null && valuePaths.length > 0
-    ? `The ${prefix}property, ${valuePaths.join('.')}`
-    : `The ${prefix}value`
-}
-
-function getSubjectPrefix({ code, valueType }: InvalidResult) {
-  switch (code) {
-    case 'type':
-    case 'any':
-      return ''
-    default:
-      return `${valueType}`
-  }
 }

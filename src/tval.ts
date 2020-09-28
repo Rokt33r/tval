@@ -1,25 +1,15 @@
-import { getSubject } from './utils'
-import { TypeName } from '@sindresorhus/is/dist'
-
-export interface InvalidResult {
-  valueType: TypeName
-  valuePaths?: string[]
+export interface InvalidResult<T extends {} = {}> {
   code: string
   value: any
-  subResults?: InvalidResult[]
-  validatorArgs?: any[]
-  messagePredicate: string
+  message: string
+  data: T
 }
 
 export class ValidationError extends Error {
-  code: string
-  value: any
-  subResults?: InvalidResult[]
-  validatorArgs?: any[]
+  result: InvalidResult
 
   constructor(invalidResult: InvalidResult, context: Function) {
-    const message = getInvalidErrorMessage(invalidResult)
-    super(message)
+    super(invalidResult.message)
 
     /* istanbul ignore next */
     if ('captureStackTrace' in Error) {
@@ -27,19 +17,12 @@ export class ValidationError extends Error {
     }
 
     this.name = 'ArgumentError'
-    this.code = invalidResult.code
-    this.value = invalidResult.value
-    this.validatorArgs = invalidResult.validatorArgs
+    this.result = invalidResult
   }
 }
 
 export function isValidationError(error: Error): error is ValidationError {
   return error instanceof ValidationError
-}
-
-export function getInvalidErrorMessage(result: InvalidResult): string {
-  const subject = getSubject(result)
-  return `${subject} should ${result.messagePredicate}`
 }
 
 export interface Validator<T, C = {}> {

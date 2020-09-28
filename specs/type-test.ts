@@ -1,4 +1,6 @@
+import { kMaxLength } from 'buffer'
 import { isValid, assert, tStr, tShape, tAny, tAnyx, tArr } from '../src'
+import { tMap } from '../src/map'
 
 function expectType<T>(value: T) {}
 
@@ -62,7 +64,11 @@ if (
   isValid(
     tShape(
       {
-        message: tStr()
+        message: tStr(),
+        data: tShape({
+          title: tAny(tStr())
+        }),
+        map: tMap().valuesOfType(tStr())
       },
       true
     ),

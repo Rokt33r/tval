@@ -37,8 +37,7 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.length',
         value,
-        validatorArgs: [length],
-        messagePredicate: `have length \`${length}\`(value: \`${value}\`, length: \`${value.length}\`)`
+        message: `The string value should have length \`${length}\`(value: \`${value}\`, length: \`${value.length}\`)`
       })
     })
   }
