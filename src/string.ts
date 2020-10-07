@@ -29,14 +29,17 @@ export class StringPredicate<S extends string = string>
     }
   }
 
-  length(length: number) {
+  length(targetLength: number) {
     return this.addValidator((value: string): InvalidResult | null => {
-      if (value.length === length) {
+      if (value.length === targetLength) {
         return null
       }
       return this.buildResult({
         code: 'string.length',
         value,
+        data: {
+          targetLength
+        },
         message: `The string value should have length \`${length}\`(value: \`${value}\`, length: \`${value.length}\`)`
       })
     })
@@ -50,8 +53,10 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.minLength',
         value,
-        validatorArgs: [minLength],
-        messagePredicate: `have a minimum length of \`${minLength}\`(value: \`${value}\`, length: \`${value.length}\`)`
+        data: {
+          minLength
+        },
+        message: `The string value should have a minimum length of \`${minLength}\`(value: \`${value}\`, length: \`${value.length}\`)`
       })
     })
   }
@@ -64,8 +69,27 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.maxLength',
         value,
-        validatorArgs: [maxLength],
-        messagePredicate: `have a minimum length of \`${maxLength}\`(value: \`${value}\`, length: \`${value.length}\`)`
+        data: {
+          maxLength
+        },
+        message: `The string value should have a maximum length of \`${maxLength}\`(value: \`${value}\`, length: \`${value.length}\`)`
+      })
+    })
+  }
+
+  range(minLength: number, maxLength: number) {
+    return this.addValidator((value: string): InvalidResult | null => {
+      if (value.length >= minLength && value.length <= maxLength) {
+        return null
+      }
+      return this.buildResult({
+        code: 'string.range',
+        value,
+        data: {
+          minLength,
+          maxLength
+        },
+        message: `The string value should have a length between \`${minLength}\` and \`${maxLength}\`(value: \`${value}\`, length: \`${value.length}\`)`
       })
     })
   }
@@ -79,7 +103,8 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.empty',
         value,
-        messagePredicate: `be empty(value: \`${value}\`, length: \`${value.length}\`)`
+        data: {},
+        message: `The string value should be empty(value: \`${value}\`, length: \`${value.length}\`)`
       })
     })
   }
@@ -93,7 +118,8 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.nonEmpty',
         value,
-        messagePredicate: `be not be empty(value: \`${value}\`, length: \`${value.length}\`)`
+        data: {},
+        message: `The string value should not be empty(value: \`${value}\`, length: \`${value.length}\`)`
       })
     })
   }
@@ -106,8 +132,10 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.equal',
         value,
-        validatorArgs: [target],
-        messagePredicate: `be equal to \`${target}\`, not equal to \`${value}\``
+        data: {
+          expectedValue: target
+        },
+        message: `The string value should be equal to \`${target}\`, not equal to \`${value}\``
       })
     })
   }
@@ -121,8 +149,10 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.oneOf',
         value,
-        validatorArgs: targets,
-        messagePredicate: `be one of \`${stringifyList(
+        data: {
+          targets
+        },
+        message: `The string value should be one of \`${stringifyList(
           targets
         )}\`(value: \`${value}\`)`
       })
@@ -138,8 +168,10 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.notEqual',
         value,
-        validatorArgs: [target],
-        messagePredicate: `be equal to \`${target}\`(value: \`${value}\`)`
+        data: {
+          target
+        },
+        message: `The string value should be equal to \`${target}\`(value: \`${value}\`)`
       })
     })
   }
@@ -151,8 +183,10 @@ export class StringPredicate<S extends string = string>
           return this.buildResult({
             code: 'string.noneOf',
             value,
-            validatorArgs: targets,
-            messagePredicate: `be none of \`${stringifyList(
+            data: {
+              targets
+            },
+            message: `The string value should be none of \`${stringifyList(
               targets
             )}\`(value: \`${value}\`)`
           })
@@ -162,17 +196,19 @@ export class StringPredicate<S extends string = string>
     })
   }
 
-  match(regexp: RegExp) {
+  match(regExp: RegExp) {
     return this.addValidator((value: string): InvalidResult | null => {
-      if (regexp.test(value)) {
+      if (regExp.test(value)) {
         return null
       }
 
       return this.buildResult({
         code: 'string.match',
         value,
-        validatorArgs: [regexp],
-        messagePredicate: `match \`${regexp}\`(value: \`${value}\`)`
+        data: {
+          regExp
+        },
+        message: `The string value should match \`${regExp}\`(value: \`${value}\`)`
       })
     })
   }
@@ -186,8 +222,10 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.startWith',
         value,
-        validatorArgs: [target],
-        messagePredicate: `start with \`${target}\`(value: \`${value}\`)`
+        data: {
+          target
+        },
+        message: `The string value should start with \`${target}\`(value: \`${value}\`)`
       })
     })
   }
@@ -201,8 +239,10 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.endWith',
         value,
-        validatorArgs: [target],
-        messagePredicate: `end with \`${target}\`(value: \`${value}\`)`
+        data: {
+          target
+        },
+        message: `The string value should end with \`${target}\`(value: \`${value}\`)`
       })
     })
   }
@@ -216,8 +256,10 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.include',
         value,
-        validatorArgs: [target],
-        messagePredicate: `include \`${target}\`(value: \`${value}\`)`
+        data: {
+          target
+        },
+        message: `The string value should include \`${target}\`(value: \`${value}\`)`
       })
     })
   }
@@ -231,8 +273,10 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.notInclude',
         value,
-        validatorArgs: [target],
-        messagePredicate: `not include \`${target}\`(value: \`${value}\`)`
+        data: {
+          target
+        },
+        message: `The string value should not include \`${target}\`(value: \`${value}\`)`
       })
     })
   }
@@ -246,7 +290,8 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.alphanumeric',
         value,
-        messagePredicate: `be alphanumeric(value: \`${value}\`)`
+        data: {},
+        message: `The string value should be alphanumeric(value: \`${value}\`)`
       })
     })
   }
@@ -260,7 +305,8 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.alphabetical',
         value,
-        messagePredicate: `be alphabetical(value: \`${value}\`)`
+        data: {},
+        message: `The string value shouldbe alphabetical(value: \`${value}\`)`
       })
     })
   }
@@ -274,7 +320,8 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.alphabetical',
         value,
-        messagePredicate: `be numeric(value: \`${value}\`)`
+        data: {},
+        message: `The string value should be numeric(value: \`${value}\`)`
       })
     })
   }
@@ -288,7 +335,8 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.date',
         value,
-        messagePredicate: `be a date(value: \`${value}\`)`
+        data: {},
+        message: `The string value should be a date(value: \`${value}\`)`
       })
     })
   }
@@ -302,7 +350,8 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.lowercase',
         value,
-        messagePredicate: `be lowercase(value: \`${value}\`)`
+        data: {},
+        message: `The string value should be lowercase(value: \`${value}\`)`
       })
     })
   }
@@ -316,7 +365,8 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.uppercase',
         value,
-        messagePredicate: `be uppercase(value: \`${value}\`)`
+        data: {},
+        message: `The string value should be uppercase(value: \`${value}\`)`
       })
     })
   }
@@ -330,7 +380,8 @@ export class StringPredicate<S extends string = string>
       return this.buildResult({
         code: 'string.url',
         value,
-        messagePredicate: `be a URL(value: \`${value}\`)`
+        data: {},
+        message: `The string value should be a URL(value: \`${value}\`)`
       })
     })
   }

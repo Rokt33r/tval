@@ -1,6 +1,9 @@
+import { TypeName } from '@sindresorhus/is'
+
 export interface InvalidResult<T extends {} = {}> {
   code: string
   value: any
+  valueType: TypeName
   message: string
   data: T
 }

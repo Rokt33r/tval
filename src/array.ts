@@ -1,5 +1,5 @@
 import { Validator, Predicate, ValidatorList, validate } from './tval'
-import { appendValuePath, createTypeValidator } from './utils'
+import { createTypeValidator } from './utils'
 
 const arrayValidator = createTypeValidator<Array<any>>('Array')
 
